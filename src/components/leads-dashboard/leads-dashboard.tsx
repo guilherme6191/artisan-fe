@@ -5,6 +5,7 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Select from "@radix-ui/react-select";
 import * as Popover from "@radix-ui/react-popover";
+
 import {
   Check,
   ChevronDown,
@@ -12,14 +13,21 @@ import {
   ChevronRight,
   ChevronUp,
   Download,
+  ListFilter,
   MoreVertical,
   Plus,
   Search,
   X,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "src/app/hooks/useDebounce";
+import { Button } from "src/components/button";
+import { RoundChip } from "src/components/round-chip";
+import { StageIndicator } from "src/components/stage-indicator";
+import { EngagementBadge } from "src/components/engagement-badge";
+import { SkeletonRow } from "./skeleton-row";
+import { ConfirmDialog } from "./ConfirmDialog";
 
-// Define the Lead type
 interface Lead {
   id: number;
   name: string;
@@ -31,22 +39,32 @@ interface Lead {
   initials: string;
 }
 
+const SEARCH_DEBOUNCE_TIME = 300;
+
 export function LeadsDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState("10");
+  const debounceSeachValue = useDebounce(searchQuery, SEARCH_DEBOUNCE_TIME);
+
+  const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
+
+  // Add QueryClient
+  const queryClient = useQueryClient();
 
   // Fetch leads data using React Query
   const { data, isLoading, isError } = useQuery<{
     leads: Lead[];
-    totalLeads: number;
+    count: number;
   }>({
-    queryKey: ["leads", currentPage, perPage, searchQuery],
+    queryKey: ["leads", currentPage, perPage, debounceSeachValue],
     queryFn: async () => {
       const response = await fetch(
-        `/api/leads?page=${currentPage}&perPage=${perPage}${
-          searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""
+        `/api/leads?page=${currentPage}&pageSize=${perPage}${
+          debounceSeachValue
+            ? `&search=${encodeURIComponent(debounceSeachValue)}`
+            : ""
         }`
       );
       if (!response.ok) {
@@ -57,7 +75,7 @@ export function LeadsDashboard() {
   });
 
   const leadsData = data?.leads || [];
-  const totalLeads = data?.totalLeads || 0;
+  const totalLeads = data?.count || 0;
   const leadsPerPage = Number.parseInt(perPage);
   const totalPages = Math.ceil(totalLeads / leadsPerPage);
 
@@ -77,24 +95,35 @@ export function LeadsDashboard() {
     }
   };
 
-  const renderStageIndicator = (stage: number) => {
-    const bars = [];
-    for (let i = 1; i <= 4; i++) {
-      bars.push(
-        <div
-          key={i}
-          className={`h-4 w-1 rounded-full ${
-            i <= stage ? "bg-indigo-500" : "bg-gray-200"
-          }`}
-        />
-      );
-    }
-    return <div className="flex items-center space-x-1">{bars}</div>;
-  };
-
   // Update the pagination display text
   const startItem = (currentPage - 1) * leadsPerPage + 1;
   const endItem = Math.min(currentPage * leadsPerPage, totalLeads);
+
+  // Add delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (leadId: number) => {
+      const response = await fetch(`/api/leads/${leadId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete lead");
+      }
+
+      return leadId;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch the leads query to update the UI
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setLeadToDelete(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting lead:", error);
+      // You could add error handling here, like showing a toast notification
+    },
+  });
+
+  const isPending = deleteMutation.isPending;
 
   if (isError) {
     return (
@@ -116,24 +145,24 @@ export function LeadsDashboard() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Leads</h1>
         <div className="flex gap-2">
-          <button className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          <Button variant="secondary">
             <Plus className="h-4 w-4 mr-2" />
             Add Lead
-          </button>
-          <button className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          </Button>
+          <Button>
             <Download className="h-4 w-4 mr-2" />
             Export All
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by lead's name, email or company name"
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Search by lead's name"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -141,9 +170,10 @@ export function LeadsDashboard() {
 
         <Popover.Root>
           <Popover.Trigger asChild>
-            <button className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ml-2">
+            <Button variant="secondary" className="ml-2 whitespace-nowrap">
+              <ListFilter className="h-4 w-4 mr-2" />
               Filter & Sort
-            </button>
+            </Button>
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
@@ -308,13 +338,13 @@ export function LeadsDashboard() {
                   </Select.Root>
                 </div>
                 <div className="flex justify-end">
-                  <button className="inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <Button variant="primary" className="text-sm font-medium">
                     Apply Filters
-                  </button>
+                  </Button>
                 </div>
               </div>
               <Popover.Arrow className="fill-white" />
-              <Popover.Close className="absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-indigo-500">
+              <Popover.Close className="absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-purple-500">
                 <X className="h-4 w-4 text-gray-500 hover:text-gray-700" />
               </Popover.Close>
             </Popover.Content>
@@ -332,7 +362,7 @@ export function LeadsDashboard() {
             <tr>
               <th scope="col" className="w-12 px-6 py-3 text-left">
                 <Checkbox.Root
-                  className="flex h-4 w-4 appearance-none items-center justify-center rounded border border-gray-300 bg-white data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                  className="flex h-4 w-4 appearance-none items-center justify-center rounded border border-gray-300 bg-white data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
                   checked={selectedLeads.length === leadsData.length}
                   onCheckedChange={(checked) =>
                     handleSelectAll(checked === true)
@@ -383,22 +413,13 @@ export function LeadsDashboard() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading
               ? Array.from({ length: leadsPerPage }).map((_, i) => (
-                  <tr key={i}>
-                    <td colSpan={7} className="text-center">
-                      <div
-                        role="status"
-                        className="max-w-sm animate-pulse w-100"
-                      >
-                        <div className="h-10 bg-gray-30 rounded-full dark:bg-gray-700 w-100 mb-4"></div>
-                      </div>
-                    </td>
-                  </tr>
+                  <SkeletonRow key={i} />
                 ))
               : leadsData.map((lead) => (
                   <tr key={lead.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Checkbox.Root
-                        className="flex h-4 w-4 appearance-none items-center justify-center rounded border border-gray-300 bg-white data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                        className="flex h-4 w-4 appearance-none items-center justify-center rounded border border-gray-300 bg-white data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
                         checked={selectedLeads.includes(lead.id)}
                         onCheckedChange={(checked) =>
                           handleSelectLead(lead.id, checked === true)
@@ -412,9 +433,7 @@ export function LeadsDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 text-xs font-medium">
-                          {lead.initials}
-                        </div>
+                        <RoundChip>{lead.initials}</RoundChip>
                         <div>
                           <div className="font-medium text-gray-900">
                             {lead.name}
@@ -429,23 +448,10 @@ export function LeadsDashboard() {
                       {lead.company}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {renderStageIndicator(lead.stage)}
+                      <StageIndicator stage={lead.stage} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          lead.engaged
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        <span
-                          className={`mr-1.5 h-2 w-2 rounded-full ${
-                            lead.engaged ? "bg-green-500" : "bg-gray-500"
-                          }`}
-                        ></span>
-                        {lead.engaged ? "Engaged" : "Not Engaged"}
-                      </span>
+                      <EngagementBadge engaged={lead.engaged} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {lead.lastContacted}
@@ -464,16 +470,13 @@ export function LeadsDashboard() {
                             align="end"
                           >
                             <DropdownMenu.Item className="flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                              View Details
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item className="flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
                               Edit Lead
                             </DropdownMenu.Item>
-                            <DropdownMenu.Item className="flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                              Add Note
-                            </DropdownMenu.Item>
                             <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
-                            <DropdownMenu.Item className="flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-red-600">
+                            <DropdownMenu.Item
+                              className="flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-red-600"
+                              onClick={() => setLeadToDelete(lead)}
+                            >
                               Delete
                             </DropdownMenu.Item>
                           </DropdownMenu.Content>
@@ -544,7 +547,7 @@ export function LeadsDashboard() {
                 onClick={() => setCurrentPage(i + 1)}
                 className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-sm ${
                   currentPage === i + 1
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-purple-600 text-white"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
@@ -559,7 +562,7 @@ export function LeadsDashboard() {
                   onClick={() => setCurrentPage(totalPages)}
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-sm ${
                     currentPage === totalPages
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-purple-600 text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -579,8 +582,20 @@ export function LeadsDashboard() {
               <span className="sr-only">Next</span>
             </button>
           </nav>
+          <div />
         </div>
       </div>
+      {leadToDelete && (
+        <ConfirmDialog
+          isPending={isPending}
+          isOpen={!!leadToDelete}
+          title={`Delete Lead ${leadToDelete.name}`}
+          onClose={() => setLeadToDelete(null)}
+          onConfirm={() => {
+            deleteMutation.mutate(leadToDelete.id);
+          }}
+        />
+      )}
     </div>
   );
 }
