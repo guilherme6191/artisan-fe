@@ -39,6 +39,7 @@ export function ConfirmDialog({
                 variant="secondary"
                 onClick={() => onClose()}
                 disabled={isPending}
+                loading={isPending}
               >
                 Cancel
               </Button>
@@ -47,8 +48,12 @@ export function ConfirmDialog({
               <Button
                 variant="primary"
                 className="bg-red-700 hover:bg-red-500 ring-red-500"
-                onClick={onConfirm}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onConfirm?.(e);
+                }}
                 disabled={isPending}
+                loading={isPending}
               >
                 Delete
               </Button>

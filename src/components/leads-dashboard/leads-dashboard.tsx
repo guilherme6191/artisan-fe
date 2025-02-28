@@ -26,7 +26,7 @@ import { RoundChip } from "src/components/round-chip";
 import { StageIndicator } from "src/components/stage-indicator";
 import { EngagementBadge } from "src/components/engagement-badge";
 import { SkeletonRow } from "./skeleton-row";
-import { ConfirmDialog } from "./ConfirmDialog";
+import { ConfirmDialog } from "./confirm-dialog";
 
 interface Lead {
   id: number;
@@ -47,14 +47,17 @@ export function LeadsDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState("10");
   const debounceSeachValue = useDebounce(searchQuery, SEARCH_DEBOUNCE_TIME);
-
   const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
 
   // Add QueryClient
   const queryClient = useQueryClient();
 
   // Fetch leads data using React Query
-  const { data, isLoading, isError } = useQuery<{
+  const {
+    data,
+    isLoading,
+    error: queryError,
+  } = useQuery<{
     leads: Lead[];
     count: number;
   }>({
@@ -113,19 +116,17 @@ export function LeadsDashboard() {
       return leadId;
     },
     onSuccess: () => {
-      // Invalidate and refetch the leads query to update the UI
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setLeadToDelete(null);
     },
     onError: (error) => {
       console.error("Error deleting lead:", error);
-      // You could add error handling here, like showing a toast notification
     },
   });
 
   const isPending = deleteMutation.isPending;
 
-  if (isError) {
+  if (queryError || deleteMutation.error) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
@@ -133,7 +134,7 @@ export function LeadsDashboard() {
         </div>
         <div className="flex justify-center items-center h-64">
           <p className="text-red-500">
-            Error loading leads data. Please try again later.
+            {queryError?.message || deleteMutation.error?.message}
           </p>
         </div>
       </div>
@@ -587,8 +588,8 @@ export function LeadsDashboard() {
       </div>
       {leadToDelete && (
         <ConfirmDialog
-          isPending={isPending}
           isOpen={!!leadToDelete}
+          isPending={isPending}
           title={`Delete Lead ${leadToDelete.name}`}
           onClose={() => setLeadToDelete(null)}
           onConfirm={() => {
