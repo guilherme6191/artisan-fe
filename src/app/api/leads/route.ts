@@ -45,7 +45,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Return the paginated leads data
   return NextResponse.json({
     leads: leads,
     count: count,

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const resolvedParams = await params;
@@ -50,7 +50,7 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const resolvedParams = await params;
@@ -60,7 +60,6 @@ export async function PATCH(
 
     const leadData = await request.json();
 
-    // Update the lead
     const { data, error } = await supabase
       .from("leads")
       .update(leadData)
@@ -75,7 +74,7 @@ export async function PATCH(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error(`Error in PATCH /api/leads/${await params.id}:`, error);
+    console.error(`Error in PATCH /api/leads/[id]:`, error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

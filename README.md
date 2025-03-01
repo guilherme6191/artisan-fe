@@ -10,7 +10,6 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **UI Components**: [Radix UI](https://radix-ui.com)
 - **Data Fetching**: [TanStack Query](https://tanstack.com/query)
 - **Icons**: [Lucide](https://lucide.dev)
-- **Font**: [Geist](https://vercel.com/font) by Vercel
 
 ## Prerequisites
 
