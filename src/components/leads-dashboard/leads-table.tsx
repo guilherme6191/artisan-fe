@@ -41,11 +41,11 @@ export function LeadsTable() {
         Showing {startItem}-{endItem} of {totalLeads} leads
       </div>
 
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="border border-gray-200 rounded-lg overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-white">
             <tr>
-              <th scope="col" className="w-12 px-6 py-3 text-left">
+              <th scope="col" className="w-12 px-4 py-3 text-left">
                 {isLoading || isPending ? (
                   <div className="h-4 w-4 rounded bg-gray-200 animate-pulse"></div>
                 ) : (
@@ -68,35 +68,35 @@ export function LeadsTable() {
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 Name
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
               >
                 Company
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
               >
                 Stage
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
               >
                 Engagement
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
               >
                 Last Contacted
               </th>
-              <th scope="col" className="relative px-6 py-3">
+              <th scope="col" className="relative px-4 py-3 w-10">
                 <span className="sr-only">Actions</span>
               </th>
             </tr>
@@ -105,32 +105,32 @@ export function LeadsTable() {
             {isLoading
               ? Array.from({ length: leadsPerPage }).map((_, i) => (
                   <tr key={i}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="h-4 w-4 rounded bg-gray-200 animate-pulse"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="h-5 w-32 rounded bg-gray-200 animate-pulse"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <div className="h-5 w-24 rounded bg-gray-200 animate-pulse"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <div className="h-5 w-16 rounded bg-gray-200 animate-pulse"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <div className="h-5 w-20 rounded bg-gray-200 animate-pulse"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <div className="h-5 w-24 rounded bg-gray-200 animate-pulse"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="h-5 w-8 rounded bg-gray-200 animate-pulse ml-auto"></div>
                     </td>
                   </tr>
                 ))
               : leadsData.map((lead) => (
                   <tr key={lead.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       {isPending ? (
                         <div className="h-4 w-4 rounded bg-gray-200 animate-pulse"></div>
                       ) : (
@@ -148,10 +148,10 @@ export function LeadsTable() {
                         </Checkbox.Root>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <RoundChip>{lead.initials}</RoundChip>
-                        <div className="ml-4">
+                        <div className="ml-3">
                           <div className="text-sm font-medium text-gray-900">
                             {lead.name}
                           </div>
@@ -161,18 +161,18 @@ export function LeadsTable() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <div className="text-sm text-gray-900">
                         {lead.company}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <StageIndicator stage={lead.stage} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                       <EngagementBadge engaged={lead.engaged} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell text-sm text-gray-500">
                       {new Date(lead.lastContacted).toLocaleDateString(
                         "en-US",
                         {
@@ -182,7 +182,7 @@ export function LeadsTable() {
                         }
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
                           <button className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
@@ -215,7 +215,7 @@ export function LeadsTable() {
                 ))}
           </tbody>
         </table>
-        <div className="flex items-center justify-between px-6 py-3 bg-white border-t border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
           <div className="flex items-center">
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
@@ -261,34 +261,42 @@ export function LeadsTable() {
               <ChevronLeft className="h-4 w-4 text-gray-500" />
             </button>
 
-            {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-              const pageNumber = i + 1;
-              return (
-                <button
-                  key={pageNumber}
-                  className={`w-8 h-8 text-sm rounded-md ${
-                    currentPage === pageNumber
-                      ? "bg-purple-100 text-purple-600 font-medium"
-                      : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                  onClick={() => setCurrentPage(pageNumber)}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
+            <div className="hidden sm:flex items-center space-x-1">
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                const pageNumber = i + 1;
+                return (
+                  <button
+                    key={pageNumber}
+                    className={`w-8 h-8 text-sm rounded-md ${
+                      currentPage === pageNumber
+                        ? "bg-purple-100 text-purple-600 font-medium"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                    onClick={() => setCurrentPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
 
-            {totalPages > 5 && (
-              <>
-                <span className="text-gray-500">...</span>
-                <button
-                  className="w-8 h-8 text-sm rounded-md hover:bg-gray-100 text-gray-700"
-                  onClick={() => setCurrentPage(totalPages)}
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
+              {totalPages > 5 && (
+                <>
+                  <span className="text-gray-500">...</span>
+                  <button
+                    className="w-8 h-8 text-sm rounded-md hover:bg-gray-100 text-gray-700"
+                    onClick={() => setCurrentPage(totalPages)}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="sm:hidden">
+              <span className="text-sm text-gray-500 mx-2">
+                {currentPage} / {totalPages}
+              </span>
+            </div>
 
             <button
               className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
@@ -298,7 +306,7 @@ export function LeadsTable() {
               <ChevronRight className="h-4 w-4 text-gray-500" />
             </button>
           </div>
-          <div />
+          <div className="hidden md:block" />
         </div>
       </div>
     </>

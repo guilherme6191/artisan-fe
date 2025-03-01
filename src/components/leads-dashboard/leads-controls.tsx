@@ -59,25 +59,25 @@ export function LeadsControls() {
 
   return (
     <div className="mb-2">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
         <h1 className="text-2xl font-bold">Leads</h1>
-        <div className="flex gap-2">
-          <ActionButton variant="secondary" onClick={handleAddLead}>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <ActionButton variant="secondary" onClick={handleAddLead} className="flex-1 sm:flex-initial justify-center">
             <Plus className="h-4 w-4 mr-2" />
-            Add Lead
+            <span className="sm:inline">Add Lead</span>
           </ActionButton>
-          <ActionButton>
+          <ActionButton className="flex-1 sm:flex-initial justify-center">
             <Download className="h-4 w-4 mr-2" />
-            Export All
+            <span className="sm:inline">Export</span>
           </ActionButton>
         </div>
       </div>
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by lead's name, email or company name"
+            placeholder="Search leads..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -87,7 +87,7 @@ export function LeadsControls() {
           <Popover.Trigger asChild>
             <ActionButton
               variant="secondary"
-              className="ml-2 whitespace-nowrap"
+              className="whitespace-nowrap w-full sm:w-auto justify-center"
             >
               <ListFilter className="h-4 w-4 mr-2" />
               Filter & Sort
@@ -95,7 +95,7 @@ export function LeadsControls() {
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
-              className="w-80 rounded-md border border-gray-200 bg-white p-4 shadow-md"
+              className="w-[calc(100vw-32px)] sm:w-80 rounded-md border border-gray-200 bg-white p-4 shadow-md"
               sideOffset={5}
             >
               <div className="space-y-4">
