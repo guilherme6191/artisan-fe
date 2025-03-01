@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
 import * as Checkbox from "@radix-ui/react-checkbox";
@@ -14,36 +14,21 @@ interface LeadFormDialogProps {
 }
 
 export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [company, setCompany] = useState("");
   const [stage, setStage] = useState("1");
   const [engaged, setEngaged] = useState(false);
-  const [lastContacted, setLastContacted] = useState("");
   const [formError, setFormError] = useState("");
 
   const queryClient = useQueryClient();
   const isEditing = !!lead;
 
-  // Reset form when dialog opens or lead changes
   useEffect(() => {
     if (isOpen) {
       if (lead) {
-        // Editing
-        setName(lead.name);
-        setEmail(lead.email);
-        setCompany(lead.company);
         setStage(lead.stage.toString());
         setEngaged(lead.engaged);
-        setLastContacted(lead.lastContacted);
       } else {
-        // Creating
-        setName("");
-        setEmail("");
-        setCompany("");
         setStage("1");
         setEngaged(false);
-        setLastContacted(new Date().toISOString().split("T")[0]);
       }
       setFormError("");
     }
@@ -84,7 +69,7 @@ export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (updatedLead: Partial<Lead> & { id: number }) => {
+    mutationFn: async (updatedLead: Lead) => {
       const response = await fetch(`/api/leads/${updatedLead.id}`, {
         method: "PATCH",
         headers: {
@@ -111,8 +96,14 @@ export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const company = formData.get("company") as string;
+    const lastContacted = formData.get("lastContacted") as string;
 
     if (!name || !email || !company) {
       setFormError("Please fill in all required fields");
@@ -157,8 +148,8 @@ export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
                 <input
                   type="text"
                   id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  name="name"
+                  defaultValue={lead?.name || ""}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                   required
                 />
@@ -174,8 +165,8 @@ export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
                 <input
                   type="email"
                   id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  defaultValue={lead?.email || ""}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                   required
                 />
@@ -191,8 +182,8 @@ export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
                 <input
                   type="text"
                   id="company"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
+                  name="company"
+                  defaultValue={lead?.company || ""}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                   required
                 />
@@ -270,8 +261,11 @@ export function LeadFormDialog({ isOpen, onClose, lead }: LeadFormDialogProps) {
                 <input
                   type="date"
                   id="lastContacted"
-                  value={lastContacted}
-                  onChange={(e) => setLastContacted(e.target.value)}
+                  name="lastContacted"
+                  defaultValue={
+                    lead?.lastContacted ||
+                    new Date().toISOString().split("T")[0]
+                  }
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                 />
               </div>
