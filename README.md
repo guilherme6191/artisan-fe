@@ -2,7 +2,75 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+## Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org)
+- **Database & Authentication**: [Supabase](https://supabase.com)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com)
+- **UI Components**: [Radix UI](https://radix-ui.com)
+- **Data Fetching**: [TanStack Query](https://tanstack.com/query)
+- **Icons**: [Lucide](https://lucide.dev)
+- **Font**: [Geist](https://vercel.com/font) by Vercel
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Node.js (v18 or newer)
+- npm, yarn, pnpm, or bun
+- A Supabase account and project
+
+## Setup Instructions
+
+1. **Clone the repository**
+
+```bash
+git clone <repository-url>
+cd lead-management-system
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+# or
+bun install
+```
+
+3. **Set up environment variables**
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+4. **Set up Supabase database**
+
+Create a table in your Supabase project called `leads` with the following schema:
+
+```sql
+create table leads (
+  id bigint primary key,
+  name text not null,
+  email text not null,
+  company text not null,
+  stage integer not null default 1,
+  engaged boolean not null default false,
+  lastContacted text,
+  initials text,
+  created_at timestamp with time zone default now()
+);
+```
+
+Don't forget to turn off RLS row level security in the `leads` table.
+
+5. **Run the development server**
 
 ```bash
 npm run dev
@@ -14,23 +82,4 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
