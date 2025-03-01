@@ -1,5 +1,3 @@
-//<button className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-purple-700 text-white shadow-sm hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2">
-
 import classNames from "classnames";
 
 const primaryButtonClasses = "bg-purple-700 text-white hover:bg-purple-500";
@@ -16,7 +14,7 @@ type Props = {
   loading?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-function Button({
+function ActionButton({
   children,
   className,
   variant = "primary",
@@ -47,4 +45,4 @@ function Button({
   );
 }
 
-export { Button };
+export { ActionButton };

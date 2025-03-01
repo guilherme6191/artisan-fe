@@ -1,5 +1,5 @@
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
-import { Button } from "../button";
+import { ActionButton } from "../action-button";
 import { ComponentProps } from "react";
 
 export function ConfirmDialog({
@@ -14,7 +14,7 @@ export function ConfirmDialog({
   isPending?: boolean;
   title: string;
   description?: string;
-  onConfirm: ComponentProps<typeof Button>["onClick"];
+  onConfirm: ComponentProps<typeof ActionButton>["onClick"];
   onClose: () => void;
 }) {
   return (
@@ -35,17 +35,17 @@ export function ConfirmDialog({
           </AlertDialog.Description>
           <div className="flex gap-3 mt-4 justify-end">
             <AlertDialog.Cancel asChild>
-              <Button
+              <ActionButton
                 variant="secondary"
                 onClick={() => onClose()}
                 disabled={isPending}
                 loading={isPending}
               >
                 Cancel
-              </Button>
+              </ActionButton>
             </AlertDialog.Cancel>
             <AlertDialog.Action asChild>
-              <Button
+              <ActionButton
                 variant="primary"
                 className="bg-red-700 hover:bg-red-500 ring-red-500"
                 onClick={(e) => {
@@ -56,7 +56,7 @@ export function ConfirmDialog({
                 loading={isPending}
               >
                 Delete
-              </Button>
+              </ActionButton>
             </AlertDialog.Action>
           </div>
         </AlertDialog.Content>

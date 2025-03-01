@@ -1,8 +1,8 @@
-export const SkeletonRow = () => {
+const SkeletonRow = () => {
   return (
     <tr className="animate-pulse">
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="h-4 w-4 bg-gray-200 rounded"></div>
+        <SkeletonCheckbox />
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
@@ -31,3 +31,14 @@ export const SkeletonRow = () => {
     </tr>
   );
 };
+
+const SkeletonCheckbox = () => (
+  <div className="h-4 w-4 bg-gray-200 rounded"></div>
+);
+
+const Skeleton = {
+  Row: SkeletonRow,
+  Checkbox: SkeletonCheckbox,
+};
+
+export default Skeleton;
