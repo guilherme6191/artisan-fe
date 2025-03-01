@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 
 export function LeadsControls() {
   const {
+    leadsData,
     stageFilter,
     engagementFilter,
     sortBy,
@@ -57,16 +58,71 @@ export function LeadsControls() {
     setIsFilterOpen(open);
   };
 
+  const exportToCSV = () => {
+    const visibleLeads = leadsData;
+
+    const headers = [
+      "ID",
+      "Name",
+      "Email",
+      "Company",
+      "Stage",
+      "Engaged",
+      "Last Contacted",
+      "Initials",
+    ];
+
+    const csvRows = [
+      headers.join(","),
+      ...visibleLeads.map((lead) =>
+        [
+          lead.id,
+          `"${lead.name.replace(/"/g, '""')}"`,
+          `"${lead.email.replace(/"/g, '""')}"`,
+          `"${lead.company.replace(/"/g, '""')}"`,
+          lead.stage,
+          lead.engaged ? "Yes" : "No",
+          lead.lastContacted,
+          lead.initials,
+        ].join(",")
+      ),
+    ];
+
+    const csvContent = csvRows.join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `leads-export-${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+
+    // clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="mb-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
         <h1 className="text-2xl font-bold">Leads</h1>
         <div className="flex gap-2 w-full sm:w-auto">
-          <ActionButton variant="secondary" onClick={handleAddLead} className="flex-1 sm:flex-initial justify-center">
+          <ActionButton
+            variant="secondary"
+            onClick={handleAddLead}
+            className="flex-1 sm:flex-initial justify-center"
+          >
             <Plus className="h-4 w-4 mr-2" />
             <span className="sm:inline">Add Lead</span>
           </ActionButton>
-          <ActionButton className="flex-1 sm:flex-initial justify-center">
+          <ActionButton
+            className="flex-1 sm:flex-initial justify-center"
+            onClick={exportToCSV}
+          >
             <Download className="h-4 w-4 mr-2" />
             <span className="sm:inline">Export</span>
           </ActionButton>

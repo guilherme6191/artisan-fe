@@ -49,6 +49,8 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
+Optionally, reach out to get the env variables.
+
 4. **Set up Supabase database**
 
 Create a table in your Supabase project called `leads` with the following schema:

@@ -200,7 +200,7 @@ export function LeadsProvider({ children }: { children: ReactNode }) {
   };
 
   const value = {
-    // State
+    // state
     searchQuery,
     selectedLeads,
     currentPage,
@@ -212,14 +212,14 @@ export function LeadsProvider({ children }: { children: ReactNode }) {
     isLeadFormOpen,
     leadToEdit,
 
-    // Query results
+    // query results
     leadsData,
     totalLeads,
     isLoading,
     isPending,
     error: error as Error | null,
 
-    // Actions
+    // handlers
     setSearchQuery,
     setSelectedLeads,
     setCurrentPage,

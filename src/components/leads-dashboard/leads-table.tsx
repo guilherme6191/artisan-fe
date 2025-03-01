@@ -12,6 +12,7 @@ import { EngagementBadge } from "src/components/engagement-badge";
 import { RoundChip } from "src/components/round-chip";
 
 import { useLeads } from "./leads-context";
+import Skeleton from "./skeleton";
 
 export function LeadsTable() {
   const {
@@ -104,29 +105,7 @@ export function LeadsTable() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading
               ? Array.from({ length: leadsPerPage }).map((_, i) => (
-                  <tr key={i}>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="h-4 w-4 rounded bg-gray-200 animate-pulse"></div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="h-5 w-32 rounded bg-gray-200 animate-pulse"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <div className="h-5 w-24 rounded bg-gray-200 animate-pulse"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <div className="h-5 w-16 rounded bg-gray-200 animate-pulse"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <div className="h-5 w-20 rounded bg-gray-200 animate-pulse"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <div className="h-5 w-24 rounded bg-gray-200 animate-pulse"></div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="h-5 w-8 rounded bg-gray-200 animate-pulse ml-auto"></div>
-                    </td>
-                  </tr>
+                  <Skeleton.Row key={i} />
                 ))
               : leadsData.map((lead) => (
                   <tr key={lead.id} className="hover:bg-gray-50">
@@ -173,14 +152,16 @@ export function LeadsTable() {
                       <EngagementBadge engaged={lead.engaged} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell text-sm text-gray-500">
-                      {new Date(lead.lastContacted).toLocaleDateString(
-                        "en-US",
-                        {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        }
-                      )}
+                      {lead.lastContacted
+                        ? new Date(lead.lastContacted).toLocaleDateString(
+                            "en-US",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )
+                        : "-"}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <DropdownMenu.Root>
