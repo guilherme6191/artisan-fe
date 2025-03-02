@@ -19,6 +19,18 @@ Before you begin, ensure you have:
 - npm, yarn, pnpm, or bun
 - A Supabase account and project
 
+## Features implemented
+
+- [x] Add a new lead
+- [x] Edit a lead
+- [x] Delete a lead
+- [x] Search for a lead
+- [x] Filter leads by company, name, email with string like
+- [x] Filter leads by engagement and stage
+- [x] Sort leads by company, name and stage
+- [x] Export leads in the UI (filtered/paginated) to CSV
+- [x] Pagination
+
 ## Setup Instructions
 
 1. **Clone the repository**

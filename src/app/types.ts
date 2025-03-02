@@ -5,6 +5,6 @@ export type Lead = {
   company: string;
   stage: number;
   engaged: boolean;
-  lastContacted: string;
+  lastContacted: Date;
   initials: string;
 };

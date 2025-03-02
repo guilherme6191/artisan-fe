@@ -159,6 +159,7 @@ export function LeadsTable() {
                               day: "numeric",
                               month: "short",
                               year: "numeric",
+                              timeZone: "UTC",
                             }
                           )
                         : "-"}
