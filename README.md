@@ -76,7 +76,7 @@ create table leads (
   stage integer not null default 1,
   engaged boolean not null default false,
   lastContacted text,
-  initials text,
+  initials timestamp with time zone,
   created_at timestamp with time zone default now()
 );
 ```
