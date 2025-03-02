@@ -7,6 +7,7 @@ import { useLeads } from "./leads-context";
 import { Plus, Download } from "lucide-react";
 import { STAGES } from "src/utils/constants";
 import { useState, useEffect } from "react";
+import { useDebounce } from "src/app/hooks/useDebounce";
 
 export function LeadsControls() {
   const {
@@ -25,6 +26,13 @@ export function LeadsControls() {
   const [localEngagementFilter, setLocalEngagementFilter] =
     useState(engagementFilter);
   const [localSortBy, setLocalSortBy] = useState(sortBy);
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+
+  const debouncedSearchQuery = useDebounce(localSearchQuery, 300);
+
+  useEffect(() => {
+    setSearchQuery(debouncedSearchQuery);
+  }, [debouncedSearchQuery, setSearchQuery]);
 
   useEffect(() => {
     setLocalStageFilter(stageFilter);
@@ -135,8 +143,8 @@ export function LeadsControls() {
             type="text"
             placeholder="Search leads..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            defaultValue={searchQuery}
+            onChange={(e) => setLocalSearchQuery(e.target.value)}
           />
         </div>
         <Popover.Root open={isFilterOpen} onOpenChange={handleFilterOpen}>
